@@ -3,39 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asistente Gemini — TiendaNube</title>
+    <title>TiendaNube — Constructor IA</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="app-container">
-        <header>
-            <div class="logo-area">
-                <h1>TiendaNube <span>Asistente IA</span></h1>
-            </div>
-            <p>Configura tu tienda y resuelve dudas en segundos.</p>
-        </header>
+    <div class="layout-wrapper">
+        <section class="chat-section">
+            <header>
+                <h1>TiendaNube <span>IA</span></h1>
+                <p>Tu asistente para construir tiendas reales.</p>
+            </header>
+            <main id="chat-window">
+                <div id="chat-messages">
+                    <div class="message bot">
+                        ¡Bienvenido! Soy tu arquitecto de TiendaNube. 
+                        Dime qué tipo de tienda quieres y la construiré en el visor de la derecha.
+                    </div>
+                </div>
+            </main>
+            <footer>
+                <form id="chat-form">
+                    <input type="text" id="user-input" placeholder="Ej: Crea una tienda de ropa minimalista..." autocomplete="off" required>
+                    <button type="submit" id="send-btn">Enviar</button>
+                </form>
+            </footer>
+        </section>
 
-        <main id="chat-window">
-            <div id="chat-messages">
-                <div class="message bot">
-                    ¡Hola! Soy tu asistente de IA para TiendaNube. ¿En qué puedo ayudarte hoy? 
-                    Puedo ayudarte a configurar tu tienda, elegir un diseño o darte consejos de venta.
+        <aside class="visor-section">
+            <div class="visor-toolbar">
+                <div class="status-dot connected"></div>
+                <span class="visor-title">Vista Previa en Vivo</span>
+                <button id="toggle-code" class="btn-tool">Ver Código</button>
+            </div>
+            <div id="preview-container">
+                <iframe id="store-preview" title="Vista previa de la tienda"></iframe>
+                <div id="code-overlay" class="hidden">
+                    <pre><code id="full-code"></code></pre>
                 </div>
             </div>
-        </main>
-
-        <footer>
-            <form id="chat-form">
-                <input type="text" id="user-input" placeholder="Escribe tu consulta aquí..." autocomplete="off" required>
-                <button type="submit" id="send-btn">
-                    <svg viewBox="0 0 24 24" width="24" height="24">
-                        <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
-                    </svg>
-                </button>
-            </form>
-        </footer>
+        </aside>
     </div>
-
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

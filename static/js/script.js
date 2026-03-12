@@ -3,60 +3,115 @@ document.addEventListener('DOMContentLoaded', () => {
     const userInput = document.getElementById('user-input');
     const chatMessages = document.getElementById('chat-messages');
     const chatWindow = document.getElementById('chat-window');
+    const storePreview = document.getElementById('store-preview');
+    const fullCode = document.getElementById('full-code');
+    const codeOverlay = document.getElementById('code-overlay');
+    const toggleCode = document.getElementById('toggle-code');
 
-    // Función para añadir mensajes a la interfaz
+    // Estado inicial de la tienda (un lienzo en blanco profesional)
+    let storeCode = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body { font-family: sans-serif; margin: 0; padding: 20px; color: #333; text-align: center; }
+                .container { max-width: 800px; margin: auto; padding: 40px; border: 2px dashed #ccc; border-radius: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h2>Tu nueva tienda aparecerá aquí</h2>
+                <p>Usa el chat para pedir diseños, productos o configuraciones.</p>
+            </div>
+        </body>
+        </html>
+    `;
+
+    // Función para actualizar el visor
+    const updateVisor = (newContent, type) => {
+        // Al recibir código nuevo, reemplazamos el estado completo para verlo renderizado al 100%
+        storeCode = newContent;
+
+        // Renderizar en el iframe
+        const doc = storePreview.contentWindow.document;
+        doc.open();
+        doc.write(storeCode);
+        doc.close();
+
+        // Actualizar overlay de código para usuarios curiosos
+        fullCode.textContent = storeCode;
+    };
+
+    // Inicializar visor
+    updateVisor(storeCode);
+
+    // Toggle para ver código
+    toggleCode.addEventListener('click', () => {
+        codeOverlay.classList.toggle('hidden');
+        toggleCode.textContent = codeOverlay.classList.contains('hidden') ? 'Ver Código' : 'Cerrar Código';
+    });
+
+    const processResponse = (text) => {
+        const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+        let match;
+        let cleanText = text;
+
+        while ((match = codeBlockRegex.exec(text)) !== null) {
+            const lang = match[1] || 'html';
+            const code = match[2];
+            
+            updateVisor(code, lang);
+            cleanText = cleanText.replace(match[0], `<div class="impl-hint">✨ ¡Vista previa actualizada!</div>`);
+        }
+        return cleanText;
+    };
+
     const addMessage = (text, sender) => {
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message', sender);
-        messageDiv.textContent = text;
+        if (sender === 'bot') {
+            messageDiv.innerHTML = processResponse(text);
+        } else {
+            messageDiv.textContent = text;
+        }
         chatMessages.appendChild(messageDiv);
-        
-        // Auto-scroll al final
         chatWindow.scrollTop = chatWindow.scrollHeight;
     };
 
-    // Manejar el envío del formulario
     chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
         const message = userInput.value.trim();
         if (!message) return;
 
-        // Limpiar input y mostrar mensaje del usuario
         userInput.value = '';
         addMessage(message, 'user');
 
-        // Mostrar indicador de "pensando" (opcional, simplificado aquí)
         const loadingDiv = document.createElement('div');
-        loadingDiv.classList.add('message', 'bot', 'loading');
+        loadingDiv.className = 'message bot loading';
         loadingDiv.textContent = '...';
         chatMessages.appendChild(loadingDiv);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
 
         try {
-            // Petición al backend
             const response = await fetch('/chat', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: message }),
             });
-
             const data = await response.json();
             
-            // Eliminar indicador de carga
-            chatMessages.removeChild(loadingDiv);
+            if (loadingDiv && loadingDiv.parentNode === chatMessages) {
+                chatMessages.removeChild(loadingDiv);
+            }
 
             if (data.response) {
                 addMessage(data.response, 'bot');
-            } else if (data.error) {
-                addMessage('Lo siento, hubo un error: ' + data.error, 'bot');
             }
         } catch (error) {
-            chatMessages.removeChild(loadingDiv);
-            addMessage('Error de conexión. Por favor, intenta de nuevo.', 'bot');
-            console.error('Error:', error);
+            if (loadingDiv && loadingDiv.parentNode === chatMessages) {
+                chatMessages.removeChild(loadingDiv);
+            }
+            addMessage('Error de conexión.', 'bot');
         }
     });
 });
