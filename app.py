@@ -16,8 +16,8 @@ if not api_key:
 
 genai.configure(api_key=api_key)
 
-# Inicializar el modelo (usaremos gemini-1.5-flash por ser rápido y eficiente para chats)
-model = genai.GenerativeModel('gemini-1.5-flash')
+# Inicializar el modelo (usaremos gemini-flash-latest por estabilidad de cuota)
+model = genai.GenerativeModel('gemini-flash-latest')
 
 # Instrucciones del sistema para el asistente
 SYSTEM_PROMPT = """
