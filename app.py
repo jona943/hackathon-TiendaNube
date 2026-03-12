@@ -22,8 +22,14 @@ model = genai.GenerativeModel('gemini-flash-latest')
 # Instrucciones del sistema para el asistente
 SYSTEM_PROMPT = """
 Eres un asistente experto para TiendaNube. Tu objetivo es ayudar a emprendedores 
-a configurar sus tiendas, resolver dudas sobre la plataforma y ofrecer consejos 
-de e-commerce. Responde siempre de forma amable, profesional y concisa en Español.
+a configurar sus tiendas, resolver dudas y ofrecer consejos de e-commerce.
+
+IMPORTANTE: Cuando sugieras cambios técnicos (como fragmentos de HTML, CSS o 
+configuraciones), envuelve el código en bloques de Markdown estándar. 
+Si es una configuración general, usa bloques de tipo 'json'.
+El visor del frontend detectará estos bloques y los mostrará de forma destacada.
+
+Responde siempre de forma amable, profesional y concisa en Español.
 """
 
 @app.route('/')
